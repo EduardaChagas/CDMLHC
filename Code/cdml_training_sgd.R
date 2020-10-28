@@ -2,6 +2,7 @@ if(!require(pracma)){
   install.packages("pracma")
   require(pracma)
 }
+source('squared_distance_value.R')
 
 gradient_regularizer <- function(tensor_M){
   grad = 2 * tensor_M
@@ -27,26 +28,25 @@ obj_empirical_L <- function(tensor_M, X, X_hat, labels){
   d = size(tensor_M)[1]
   e = size(tensor_M)[2]
   m = size(tensor_M)[3]
-  dd = size(X)[1]
-  N = size(X)[2]
+  dd = size(X)[2]
+  N = size(X)[1]
   empirical_loss_value = 0
   u = 2
   v = 8
   for(i in 1:N){
-    empirical_loss_value = empirical_loss_value + labels[i] * max(0, squared_distance_value(tensor_M, X[,i], X_hat[,i]) - u)^2 +
-                          (1- labels[i]) * max(0, v - squared_distance_value(tensor_M, X[, i], X_hat[, i]))^2
+    empirical_loss_value = empirical_loss_value + labels[i] * max(0, squared_distance_value(tensor_M, X[i,], X_hat[i,]) - u)^2 +
+                          (1- labels[i]) * max(0, v - squared_distance_value(tensor_M, X[i,], X_hat[i,]))^2
   }
   empirical_loss_value = empirical_loss_value / N
   return(empirical_loss_value)
 }
 
-cdml_training_sgd <- function(X, X_hat, labels, parameters){
+cdml_training_sgd <- function(X, X_hat, labels, parameters, tensor_M){
   lambda = parameters$lambda
-  c = parameters$c
+  e = parameters$c
   m = parameters$m
   batch_size = parameters$batch_size
   eta = parameters$eta
-  tensor_M = parameters$tensor_M
   epoch = parameters$epoch
   
   d = size(X)[1]
